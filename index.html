@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<title>石岡市 保育所入所ガイド｜令和8年度</title>
+<meta name="description" content="石岡市の保育所入所に必要な情報をまとめたガイドアプリです。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{font-family:'Zen Maru Gothic',sans-serif;background:#FFFAF3;overflow-x:hidden}
+  #root{min-height:100vh;min-height:100dvh}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes pop{0%{transform:scale(.92);opacity:0}100%{transform:scale(1);opacity:1}}
+  @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  @keyframes floatY2{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-9px) rotate(4deg)}}
+  @keyframes floatY3{0%,100%{transform:translateY(0) rotate(4deg)}50%{transform:translateY(-5px) rotate(-3deg)}}
+  @keyframes floatY4{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-6px) scale(1.05)}}
+  @keyframes wiggle{0%,100%{transform:rotate(-6deg) scale(1)}50%{transform:rotate(6deg) scale(1.08)}}
+  @keyframes typing{0%{opacity:.3}50%{opacity:1}100%{opacity:.3}}
+  @keyframes sparkle{0%,100%{opacity:0.4;transform:scale(0.8)}50%{opacity:1;transform:scale(1.2)}}
+  .fade-up{animation:fadeUp .5s ease both}
+  .pop{animation:pop .35s cubic-bezier(.34,1.56,.64,1) both}
+  .do-float{animation:floatY 3s ease-in-out infinite}
+  .do-float2{animation:floatY2 4s ease-in-out infinite}
+  .do-float3{animation:floatY3 3.5s ease-in-out infinite}
+  .do-float4{animation:floatY4 2.8s ease-in-out infinite}
+  .do-wiggle{animation:wiggle 2.5s ease-in-out infinite}
+  .do-sparkle{animation:sparkle 2s ease-in-out infinite}
+  .s1{animation-delay:.05s}.s2{animation-delay:.1s}.s3{animation-delay:.15s}
+  .s4{animation-delay:.2s}.s5{animation-delay:.25s}.s6{animation-delay:.3s}
+  .d1{animation-delay:0s}.d2{animation-delay:.6s}.d3{animation-delay:1.1s}
+  .d4{animation-delay:1.6s}.d5{animation-delay:.4s}.d6{animation-delay:.9s}
+  .pbtn{transition:transform .18s,box-shadow .18s;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .pbtn:active{transform:scale(.96)!important}
+  @media(hover:hover){.pbtn:hover{transform:translateY(-3px)}}
+  button{font-family:inherit}
+  .typing-dot{animation:typing 1.2s infinite;display:inline-block;width:8px;height:8px;border-radius:50%;margin:0 2px}
+  .typing-dot:nth-child(2){animation-delay:.2s}
+  .typing-dot:nth-child(3){animation-delay:.4s}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useCallback, useRef, useEffect } = React;
+
+/* ─── ALL icons as inline SVG ─── */
+const I = {
+  ClipboardList:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg>),
+  Building:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>),
+  FileText:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>),
+  UserCheck:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>),
+  DollarSign:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>),
+  Phone:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>),
+  ArrowLeft:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>),
+  CheckCircle:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>),
+  EmptyCircle:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2"><circle cx="12" cy="12" r="10"/></svg>),
+  MapPin:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>),
+  Clock:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>),
+  Heart:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>),
+  Star:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>),
+  AlertCircle:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>),
+  Info:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>),
+  Tree:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22v-7"/><path d="M7 15l5-11 5 11H7z"/></svg>),
+  Smile:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>),
+  Send:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>),
+  MessageCircle:({size=20,color="#333"})=>(<svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>),
+};
+
+/* ─── Palette ─── */
+const C = {
+  orange:"#F28C38", orangeLight:"#FFF3E6", orangeSoft:"#FDDCB5",
+  green:"#5DAA68", greenLight:"#E8F5E9", greenDark:"#3D8B4A",
+  cream:"#FFFAF3", warm:"#FEF7EE",
+  text:"#3A2E1C", textMid:"#6B5D4F", textLight:"#9E8E7E",
+  white:"#FFFFFF", border:"#F0E6D9", shadow:"rgba(180,150,110,0.12)",
+};
+const stagger = (i) => "s" + Math.min(i + 1, 6);
+
+/* ─── 保育グッズ SVGアイコン ─── */
+const Toy = {
+  Block: ({size=28}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <rect x="4" y="14" width="18" height="18" rx="3" fill="#F28C38" opacity="0.85"/>
+      <rect x="18" y="6" width="18" height="18" rx="3" fill="#E8B84B" opacity="0.75"/>
+      <rect x="4" y="14" width="18" height="18" rx="3" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" fill="none"/>
+      <text x="13" y="26.5" fontSize="10" fill="white" fontWeight="bold" textAnchor="middle" fontFamily="Zen Maru Gothic, sans-serif">A</text>
+    </svg>
+  ),
+  BlockB: ({size=28}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <rect x="4" y="14" width="18" height="18" rx="3" fill="#5DAA68" opacity="0.85"/>
+      <rect x="18" y="6" width="18" height="18" rx="3" fill="#3D8B4A" opacity="0.7"/>
+      <text x="13" y="26.5" fontSize="10" fill="white" fontWeight="bold" textAnchor="middle" fontFamily="Zen Maru Gothic, sans-serif">B</text>
+    </svg>
+  ),
+  Crayon: ({size=28, color="#D45D8E"}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <rect x="16" y="3" width="8" height="26" rx="2" fill={color}/>
+      <polygon points="14,29 26,29 20,38" fill="#E8B84B"/>
+      <rect x="16" y="3" width="8" height="7" rx="2" fill="rgba(255,255,255,0.35)"/>
+      <rect x="16" y="10" width="8" height="2" fill="rgba(0,0,0,0.1)"/>
+    </svg>
+  ),
+  CrayonG: ({size=28}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <rect x="16" y="3" width="8" height="26" rx="2" fill="#5DAA68"/>
+      <polygon points="14,29 26,29 20,38" fill="#E8B84B"/>
+      <rect x="16" y="3" width="8" height="7" rx="2" fill="rgba(255,255,255,0.35)"/>
+    </svg>
+  ),
+  CrayonO: ({size=28}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <rect x="16" y="3" width="8" height="26" rx="2" fill="#F28C38"/>
+      <polygon points="14,29 26,29 20,38" fill="#E8B84B"/>
+      <rect x="16" y="3" width="8" height="7" rx="2" fill="rgba(255,255,255,0.35)"/>
+    </svg>
+  ),
+  Note: ({size=28, color="#D45D8E"}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <ellipse cx="11" cy="32" rx="6" ry="4" fill={color} opacity="0.8"/>
+      <ellipse cx="27" cy="28" rx="6" ry="4" fill={color} opacity="0.6"/>
+      <path d="M17 32 L17 9 Q17 7 19 7 L19 27" stroke={color} strokeWidth="2.5" fill="none"/>
+      <path d="M17 9 L31 5 L31 23 L17 27 Z" fill={color} opacity="0.35"/>
+    </svg>
+  ),
+  Star: ({size=28, color="#F28C38"}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <polygon points="20,4 23.8,14.5 35,14.5 26,21.5 29.5,33 20,27 10.5,33 14,21.5 5,14.5 16.2,14.5" fill={color} opacity="0.85"/>
+    </svg>
+  ),
+  Heart: ({size=28, color="#D45D8E"}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <path d="M20 35 C20 35 4 23 4 13 C4 7 9.5 3.5 14.5 5.5 C16.5 6.5 18.5 8.5 20 10.5 C21.5 8.5 23.5 6.5 25.5 5.5 C30.5 3.5 36 7 36 13 C36 23 20 35 20 35Z" fill={color} opacity="0.85"/>
+      <path d="M14 13 C14 11 16 10 18 11" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+    </svg>
+  ),
+  Rainbow: ({size=36}) => (
+    <svg width={size} height={size*0.65} viewBox="0 0 60 40" fill="none">
+      <path d="M4 36 Q4 8 30 8 Q56 8 56 36" stroke="#F28C38" strokeWidth="4" fill="none" strokeLinecap="round"/>
+      <path d="M9 36 Q9 14 30 14 Q51 14 51 36" stroke="#E8B84B" strokeWidth="4" fill="none" strokeLinecap="round"/>
+      <path d="M14 36 Q14 20 30 20 Q46 20 46 36" stroke="#5DAA68" strokeWidth="4" fill="none" strokeLinecap="round"/>
+      <path d="M19 36 Q19 25 30 25 Q41 25 41 36" stroke="#5B8AD0" strokeWidth="4" fill="none" strokeLinecap="round"/>
+    </svg>
+  ),
+  Flower: ({size=28, color="#D45D8E"}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="5" fill="#E8B84B"/>
+      <ellipse cx="20" cy="9" rx="4" ry="6" fill={color} opacity="0.75"/>
+      <ellipse cx="20" cy="31" rx="4" ry="6" fill={color} opacity="0.75"/>
+      <ellipse cx="9" cy="20" rx="6" ry="4" fill={color} opacity="0.75"/>
+      <ellipse cx="31" cy="20" rx="6" ry="4" fill={color} opacity="0.75"/>
+      <ellipse cx="12" cy="12" rx="4" ry="6" fill={color} opacity="0.6" transform="rotate(-45 12 12)"/>
+      <ellipse cx="28" cy="12" rx="4" ry="6" fill={color} opacity="0.6" transform="rotate(45 28 12)"/>
+      <ellipse cx="12" cy="28" rx="4" ry="6" fill={color} opacity="0.6" transform="rotate(45 12 28)"/>
+      <ellipse cx="28" cy="28" rx="4" ry="6" fill={color} opacity="0.6" transform="rotate(-45 28 28)"/>
+    </svg>
+  ),
+  Duck: ({size=28}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <ellipse cx="20" cy="26" rx="14" ry="10" fill="#E8B84B"/>
+      <circle cx="22" cy="14" r="9" fill="#E8B84B"/>
+      <ellipse cx="30" cy="15" rx="5" ry="3" fill="#F28C38"/>
+      <circle cx="26" cy="12" r="1.5" fill="#3A2E1C"/>
+      <path d="M6 28 Q3 30 5 33 Q8 34 10 32" fill="#F28C38"/>
+      <path d="M34 28 Q37 30 35 33 Q32 34 30 32" fill="#F28C38"/>
+    </svg>
+  ),
+  Ball: ({size=28}) => (
+    <svg width={size} height={size} viewBox="0 0 40 40" fill="none">
+      <circle cx="20" cy="20" r="16" fill="#5B8AD0"/>
+      <path d="M4 20 Q20 10 36 20" stroke="white" strokeWidth="2" fill="none" opacity="0.6"/>
+      <path d="M4 20 Q20 30 36 20" stroke="white" strokeWidth="2" fill="none" opacity="0.6"/>
+      <path d="M20 4 Q10 20 20 36" stroke="white" strokeWidth="2" fill="none" opacity="0.6"/>
+      <path d="M20 4 Q30 20 20 36" stroke="white" strokeWidth="2" fill="none" opacity="0.6"/>
+      <circle cx="14" cy="13" r="3" fill="rgba(255,255,255,0.3)"/>
+    </svg>
+  ),
+};
+
+/* ─── ページ装飾バナー (各ページ上部) ─── */
+const DecoBar = ({ items }) => (
+  <div style={{
+    display:"flex", alignItems:"center", justifyContent:"center",
+    gap:8, padding:"6px 16px", flexWrap:"wrap",
+    background:"linear-gradient(90deg, rgba(255,243,230,0.8), rgba(232,245,233,0.8), rgba(255,243,230,0.8))",
+    borderBottom:"1px solid rgba(240,230,217,0.5)",
+  }}>
+    {items.map((item, i) => (
+      <div key={i} className={"do-float" + (i%3===0?"":i%3===1?"2":"3") + " d"+(i+1)} style={{opacity:0.75}}>
+        {item}
+      </div>
+    ))}
+  </div>
+);
+
+/* ─── ページ内浮遊キャラクター ─── */
+const FloatingShishi = ({ size=36, style={}, className="" }) => (
+  <div className={"do-float " + className} style={{display:"inline-block", ...style}}>
+    <Mascot size={size} />
+  </div>
+);
+
+/* ─── Mascot (ししまるくん) 新しい画像 ─── */
+const SHISHIMARU_SRC = "data:image/png;base64,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";
+const Mascot = ({ size = 48 }) => (
+  <img src={SHISHIMARU_SRC} alt="ししまるくん" style={{ height: size, width: "auto", objectFit: "contain" }} />
+);
+
+/* ─── Global Styles ─── */
+const GlobalStyles = () => (
+  <style>{`
+    @import url('https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap');
+    *{font-family:'Zen Maru Gothic',sans-serif;box-sizing:border-box}
+    body{margin:0}
+  `}</style>
+);
+
+/* ─── Header ─── */
+const PageHeader = ({ title, onBack, icon: Icon }) => (
+  <div style={{display:"flex",alignItems:"center",gap:12,padding:16,position:"sticky",top:0,zIndex:30,background:"linear-gradient(135deg,#FFF3E6,#FFFAF3)",borderBottom:"1px solid #F0E6D9"}}>
+    <button onClick={onBack} style={{width:40,height:40,borderRadius:"50%",border:"none",cursor:"pointer",background:"#fff",boxShadow:"0 2px 8px rgba(180,150,110,0.12)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+      <I.ArrowLeft size={20} color={C.text} />
+    </button>
+    {Icon && <Icon size={22} color={C.orange} />}
+    <h2 style={{fontSize:18,fontWeight:700,color:C.text,flex:1}}>{title}</h2>
+    <div className="do-float" style={{opacity:0.7}}><Mascot size={30} /></div>
+  </div>
+);
+
+/* ─── Card ─── */
+const Card = ({ children, style, className }) => (
+  <div className={className || ""} style={{background:C.white,border:"1px solid "+C.border,boxShadow:"0 2px 8px "+C.shadow,borderRadius:16,padding:20,...style}}>
+    {children}
+  </div>
+);
+
+/* ━━━ FAQ DATA ━━━ */
+const faqData = [
+  { keywords:["申請","いつ","締切","期限","期日","しめきり","締め切り","4月","四月"],
+    q:"申請の締切はいつですか？",
+    a:"【令和8年4月入所】\n一次申請：令和7年11月4日（火）〜令和7年12月5日（金）\n二次申請：令和7年12月8日（月）〜令和8年2月6日（金）\n\n受付時間：平日 8:30〜17:15（水曜は19:00まで）\n\n年度途中の随時入所は、希望月の前月10日まで（土日祝の場合は翌平日）です。" },
+  { keywords:["書類","必要","なに","何","持ち物","もちもの","用意","準備"],
+    q:"必要な書類は何ですか？",
+    a:"① 支給認定申請書 ② 保育所入所申込書 ③ 家庭状況調書 ④ 入所児童状況書 ⑤ 重要事項確認書 ⑥ 保育の必要性を証明する書類（就労証明書など）の6点が必要です。" },
+  { keywords:["保育料","料金","いくら","費用","お金","無料","無償","タダ"],
+    q:"保育料はいくらですか？",
+    a:"3〜5歳児クラスは保育料無償です（給食費等は別途）。0〜2歳児クラスは世帯の市町村民税所得割額に応じて決定されます。住民税非課税世帯は無償です。詳しくはこども未来課へお問い合わせください。" },
+  { keywords:["就労","仕事","働","パート","アルバイト","時間","何時間"],
+    q:"パートでも申請できますか？",
+    a:"はい。月60時間以上の就労であれば申請可能です。月120時間以上の場合は「保育標準時間（最大11時間）」、月60～120時間未満の場合は「保育短時間（最大8時間）」の認定となります。" },
+  { keywords:["求職","探し","仕事探し","無職","退職","やめ"],
+    q:"求職中でも申請できますか？",
+    a:"はい、求職活動中でも申請できます。ただし、入所後90日以内に就労を開始する必要があります。求職活動申立書の提出が必要です。" },
+  { keywords:["どこ","場所","窓口","提出","受付","持っていく"],
+    q:"申請はどこに出せばいいですか？",
+    a:"石岡市役所こども未来課（本庁舎）、または八郷総合支所市民窓口課で受け付けています。受付時間は平日8:30～17:15です。" },
+  { keywords:["転入","引っ越し","引越","ひっこし","市外","他市","住民票"],
+    q:"石岡市に引っ越し予定ですが申請できますか？",
+    a:"転入予定の方も申請可能です。入所希望月の前月末日までに石岡市に住民登録が完了する見込みであれば受け付けます。詳しくはこども未来課へご相談ください。" },
+  { keywords:["兄弟","きょうだい","姉妹","2人","二人","ふたり","3人","三人","多子","第2子","第二子","第3子","第三子"],
+    q:"きょうだいで通う場合、割引はありますか？",
+    a:"はい。きょうだいが保育施設等を同時に利用している場合、0〜2歳児クラスでは第2子は半額、第3子以降は無償となる多子軽減制度があります。" },
+  { keywords:["選考","基準","優先","点数","指数","落ち","入れ","入れない","競争"],
+    q:"選考（利用調整）はどう決まりますか？",
+    a:"保護者の就労状況や家庭の状況などに基づき、保育の必要性を点数化して優先度を判定します。希望者が定員を超えた場合は、点数の高い方から入所が決まります。詳細な基準はこども未来課へお問い合わせください。" },
+  { keywords:["途中","年度途中","途中入所","空き","あき","待機","入りたい"],
+    q:"年度途中でも入所できますか？",
+    a:"空きがあれば年度途中でも入所可能です。希望月の前月10日まで（土日祝の場合は翌平日）に申請してください。ただし、定員に空きがない場合は待機となることがあります。" },
+  { keywords:["電話","問い合わせ","連絡","相談","tel","でんわ"],
+    q:"電話で相談できますか？",
+    a:"はい。石岡市役所こども未来課（保育担当）へお電話ください。受付時間は平日8:30～17:15です。窓口での対面相談も可能です。" },
+];
+
+const findFaqAnswer = (input) => {
+  const q = input.toLowerCase().replace(/[？?！!。、\s]/g, "");
+  if (q.length === 0) return null;
+  let bestMatch = null;
+  let bestScore = 0;
+  faqData.forEach(faq => {
+    let score = 0;
+    faq.keywords.forEach(kw => { if (q.includes(kw)) score += kw.length; });
+    if (score > bestScore) { bestScore = score; bestMatch = faq; }
+  });
+  return bestScore >= 2 ? bestMatch : null;
+};
+
+/* ━━━ HOME ━━━ */
+const HomeScreen = ({ navigate }) => {
+  const panels = [
+    { id:"flow", label:"入所の流れ", sub:"ステップ確認", icon:I.ClipboardList, color:C.orange, bg:"#FFF3E6" },
+    { id:"docs", label:"必要書類", sub:"チェックリスト", icon:I.FileText, color:C.green, bg:"#E8F5E9" },
+    { id:"facilities", label:"施設一覧", sub:"公立・私立", icon:I.Building, color:"#5B8AD0", bg:"#E8F0FA" },
+    { id:"diagnosis", label:"入所資格診断", sub:"かんたん診断", icon:I.UserCheck, color:"#D45D8E", bg:"#FCE8F0" },
+    { id:"fees", label:"保育料について", sub:"料金の目安", icon:I.DollarSign, color:"#9B7EC8", bg:"#F1ECF9" },
+    { id:"contact", label:"窓口・お問合せ", sub:"FAQ・受付場所", icon:I.Phone, color:"#4DB6AC", bg:"#E0F2F1" },
+  ];
+  return (
+    <div style={{background:"linear-gradient(170deg,#FFFAF3 0%,#FEF7EE 40%,#f0f7f0 100%)",minHeight:"100vh"}}>
+      <GlobalStyles />
+
+      {/* 上部フローティングデコ */}
+      <div style={{position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:8,left:8,zIndex:1,pointerEvents:"none",opacity:0.55}}>
+          <div className="do-float2 d1"><Toy.Rainbow size={44}/></div>
+        </div>
+        <div style={{position:"absolute",top:12,right:14,zIndex:1,pointerEvents:"none",opacity:0.55}}>
+          <div className="do-float3 d3"><Toy.Star size={28} color="#F28C38"/></div>
+        </div>
+        <div style={{position:"absolute",top:60,left:18,zIndex:1,pointerEvents:"none",opacity:0.4}}>
+          <div className="do-float d5"><Toy.Flower size={22} color="#D45D8E"/></div>
+        </div>
+        <div style={{position:"absolute",top:55,right:20,zIndex:1,pointerEvents:"none",opacity:0.4}}>
+          <div className="do-float2 d2"><Toy.Note size={22} color="#5DAA68"/></div>
+        </div>
+
+        <div className="fade-up" style={{textAlign:"center",padding:"28px 20px 8px"}}>
+          {/* ししまるくん + グッズ装飾 */}
+          <div style={{position:"relative",display:"inline-block"}}>
+            <div className="do-float" style={{display:"inline-block"}}>
+              <Mascot size={64} />
+            </div>
+            {/* 左右の小さいアイコン */}
+            <div className="do-float3 d2" style={{position:"absolute",top:-8,left:-32,opacity:0.7}}>
+              <Toy.Block size={26}/>
+            </div>
+            <div className="do-float2 d4" style={{position:"absolute",top:-4,right:-34,opacity:0.7}}>
+              <Toy.Crayon size={24} color="#D45D8E"/>
+            </div>
+            <div className="do-float d3" style={{position:"absolute",bottom:-6,left:-28,opacity:0.6}}>
+              <Toy.Heart size={20} color="#D45D8E"/>
+            </div>
+            <div className="do-float2 d5" style={{position:"absolute",bottom:-4,right:-26,opacity:0.6}}>
+              <Toy.Star size={20} color="#5DAA68"/>
+            </div>
+          </div>
+
+          <h1 style={{fontSize:24,fontWeight:900,color:C.text,letterSpacing:"-0.02em",marginTop:8}}>石岡市 保育所入所ガイド</h1>
+          <p style={{fontSize:14,color:C.textMid,marginTop:4}}>令和8年度（2026年度）</p>
+          <div className="fade-up s1" style={{marginTop:16,marginLeft:"auto",marginRight:"auto",padding:"12px 16px",borderRadius:16,background:"linear-gradient(135deg,#F28C38,#E8783A)",maxWidth:380,boxShadow:"0 4px 16px rgba(242,140,56,0.3)"}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+              <I.Star size={18} color="#fff" />
+              <p style={{color:"#fff",fontSize:14,fontWeight:700}}>令和8年4月入所　申請日程</p>
+            </div>
+            <p style={{color:"rgba(255,255,255,0.9)",fontSize:12,marginBottom:2}}>一次：令和7年11月4日〜令和7年12月5日</p>
+            <p style={{color:"rgba(255,255,255,0.9)",fontSize:12,marginBottom:8}}>二次：令和7年12月8日〜令和8年2月6日</p>
+            <div style={{borderTop:"1px solid rgba(255,255,255,0.3)",paddingTop:8,display:"flex",alignItems:"center",gap:8}}>
+              <I.Clock size={14} color="#fff" />
+              <p style={{color:"rgba(255,255,255,0.9)",fontSize:12}}><span style={{fontWeight:700,color:"#fff"}}>途中入所：</span>希望月の前月10日まで（土日祝は翌平日）</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* メニューグリッド */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,padding:"20px 16px",maxWidth:420,margin:"0 auto"}}>
+        {panels.map((p, i) => (
+          <button key={p.id} onClick={() => navigate(p.id)} className={"pbtn pop "+stagger(i)} style={{borderRadius:24,padding:16,textAlign:"left",display:"flex",flexDirection:"column",gap:8,background:C.white,border:"1.5px solid "+C.border,boxShadow:"0 4px 14px "+C.shadow,minHeight:120}}>
+            <div style={{width:44,height:44,borderRadius:16,background:p.bg,display:"flex",alignItems:"center",justifyContent:"center"}}><p.icon size={22} color={p.color} /></div>
+            <div><span style={{display:"block",fontSize:16,fontWeight:700,color:C.text}}>{p.label}</span><span style={{display:"block",fontSize:12,color:C.textLight,marginTop:2}}>{p.sub}</span></div>
+          </button>
+        ))}
+      </div>
+
+      {/* 下部デコ + フッター */}
+      <div style={{textAlign:"center",padding:"0 16px 24px"}}>
+        <div style={{display:"flex",justifyContent:"center",alignItems:"flex-end",gap:10,marginBottom:12,opacity:0.55}}>
+          <div className="do-float d1"><Toy.Block size={22}/></div>
+          <div className="do-float2 d3"><Toy.Duck size={26}/></div>
+          <div className="do-float d5"><Toy.BlockB size={22}/></div>
+          <div className="do-float3 d2"><Toy.Ball size={22}/></div>
+          <div className="do-float2 d4"><Toy.CrayonO size={22}/></div>
+          <div className="do-float d6"><Toy.CrayonG size={22}/></div>
+        </div>
+        <span style={{fontSize:12,color:C.textLight,display:"inline-flex",alignItems:"center",gap:4}}>
+          <I.Info size={12} color={C.textLight} /> 石岡市こども未来課（保育担当）
+        </span>
+      </div>
+    </div>
+  );
+};
+
+/* ━━━ FLOW ━━━ */
+const FlowPage = ({ onBack }) => {
+  const steps = [
+    { num:1, title:"保育の必要性を確認", desc:"就労（月60時間以上）、妊娠・出産、疾病・障害、介護、求職活動などの要件に該当するか確認します。", toy:<Toy.Star size={22} color="#F28C38"/> },
+    { num:2, title:"必要書類を準備", desc:"支給認定申請書、入所申込書、家庭状況調書、入所児童状況書、重要事項確認書、就労証明書等を揃えます。", toy:<Toy.Crayon size={22} color="#D45D8E"/> },
+    { num:3, title:"窓口で申請", desc:"石岡市役所こども未来課、または八郷総合支所市民窓口課に提出します。", toy:<Toy.Block size={22}/> },
+    { num:4, title:"利用調整（選考）", desc:"保育の必要性・優先度を市が審査し、入所先を調整します。", toy:<Toy.Ball size={22}/> },
+    { num:5, title:"結果通知 → 入所", desc:"入所内定後、施設との面談を経て入所となります。", toy:<Toy.Heart size={22} color="#D45D8E"/> },
+  ];
+  return (
+    <div style={{background:C.cream,minHeight:"100vh"}}>
+      <GlobalStyles />
+      <PageHeader title="入所の流れ" onBack={onBack} icon={I.ClipboardList} />
+      <DecoBar items={[<Toy.Block size={20}/>,<Toy.Rainbow size={28}/>,<Toy.Crayon size={20} color="#D45D8E"/>,<Toy.Duck size={22}/>,<Toy.Star size={20} color="#5DAA68"/>,<Toy.Ball size={20}/>,<Toy.Flower size={20} color="#F28C38"/>]} />
+      <div style={{padding:"20px 16px",maxWidth:420,margin:"0 auto"}}>
+        <div className="fade-up" style={{borderRadius:16,padding:16,background:C.orangeLight,border:"1px solid "+C.orangeSoft,marginBottom:20}}>
+          <p style={{fontSize:14,fontWeight:700,color:C.orange,display:"flex",alignItems:"center",gap:8}}><I.Clock size={16} color={C.orange} /> 令和8年4月入所　申請締切</p>
+          <div style={{fontSize:14,color:C.text,marginTop:8}}>
+            <p style={{margin:"4px 0"}}>● 一次申請：<strong>令和7年11月4日（火）〜令和7年12月5日（金）</strong></p>
+            <p style={{margin:"4px 0"}}>● 二次申請：<strong>令和7年12月8日（月）〜令和8年2月6日（金）</strong></p>
+            <p style={{margin:"6px 0 2px",fontSize:12,color:C.textMid}}>● 随時入所：希望月の<strong>前月10日</strong>まで（土日祝は翌平日）</p>
+            <p style={{margin:"4px 0",fontSize:12,color:C.textMid}}>● 受付時間：平日 8:30〜17:15（水曜は19:00まで）</p>
+          </div>
+        </div>
+        <div style={{position:"relative"}}>
+          <div style={{position:"absolute",left:23,top:32,bottom:32,width:2,background:C.border}} />
+          {steps.map((s, i) => (
+            <div key={s.num} className={"fade-up "+stagger(i)} style={{display:"flex",gap:16,marginBottom:20,position:"relative"}}>
+              <div style={{width:48,height:48,borderRadius:"50%",flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:16,zIndex:10,background:i===steps.length-1?C.green:C.orange,boxShadow:"0 3px 10px "+C.shadow}}>{s.num}</div>
+              <Card style={{flex:1}}>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+                  <p style={{fontWeight:700,fontSize:16,color:C.text}}>{s.title}</p>
+                  <div className={"do-float d"+(i+1)} style={{opacity:0.6,marginLeft:8}}>{s.toy}</div>
+                </div>
+                <p style={{fontSize:14,color:C.textMid,marginTop:4}}>{s.desc}</p>
+              </Card>
+            </div>
+          ))}
+        </div>
+        {/* 下部ししまるくん */}
+        <div style={{textAlign:"center",padding:"8px 0 16px",opacity:0.6}}>
+          <div className="do-wiggle" style={{display:"inline-block"}}>
+            <Mascot size={44} />
+          </div>
+          <p style={{fontSize:12,color:C.textLight,marginTop:4}}>わからないことは窓口へ相談してね！</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ━━━ 保育の必要性を証明する書類 事由別ガイド ━━━ */
+const PROOF_DOCS = {
+  work: {
+    label:"就労（パート・フルタイム）",
+    icon:"💼",
+    color:"#F28C38",
+    bg:"#FFF3E6",
+    border:"#FDDCB5",
+    docs:[
+      { name:"就労証明書", how:"勤務先に記入・押印を依頼。石岡市所定の様式を窓口またはHP からダウンロードして持参してください。", caution:"記入に数日〜数週間かかることがあります。早めに依頼を！" },
+    ],
+  },
+  selfemploy: {
+    label:"自営業・農業",
+    icon:"🏪",
+    color:"#F28C38",
+    bg:"#FFF3E6",
+    border:"#FDDCB5",
+    docs:[
+      { name:"就労証明書（自営業者用）", how:"保護者本人が記入・押印する様式です。窓口またはHPからダウンロード。", caution:"開業届・確定申告書の写し等の添付を求められる場合があります。" },
+    ],
+  },
+  pregnancy: {
+    label:"妊娠・出産",
+    icon:"🤰",
+    color:"#D45D8E",
+    bg:"#FFF0F3",
+    border:"#f0d0d8",
+    docs:[
+      { name:"母子健康手帳の写し（表紙・出産予定日が記載されたページ）", how:"母子手帳のコピーを用意してください。", caution:"産前8週〜産後8週の期間が対象です。" },
+    ],
+  },
+  illness: {
+    label:"疾病・障害",
+    icon:"🏥",
+    color:"#5B8AD0",
+    bg:"#E8F0FA",
+    border:"#c8d8f0",
+    docs:[
+      { name:"診断書（医師が発行するもの）", how:"かかりつけ医や主治医に「保育所入所のため」と伝えて発行してもらいます。", caution:"障害の場合は障害者手帳の写しで代用できる場合があります。詳しくはこども未来課へ。" },
+    ],
+  },
+  nursing: {
+    label:"介護・看護",
+    icon:"🩺",
+    color:"#4DB6AC",
+    bg:"#E0F2F1",
+    border:"#b2dfdb",
+    docs:[
+      { name:"介護・看護状況申告書", how:"石岡市所定の様式を窓口で入手し、保護者が記入します。", caution:"" },
+      { name:"介護対象者の状況がわかる書類", how:"介護保険被保険者証の写し、または医師の診断書など。", caution:"対象者との続柄がわかる書類（住民票等）も必要になることがあります。" },
+    ],
+  },
+  jobsearch: {
+    label:"求職活動中",
+    icon:"🔍",
+    color:"#9B7EC8",
+    bg:"#F1ECF9",
+    border:"#d8cef0",
+    docs:[
+      { name:"求職活動申立書", how:"石岡市所定の様式を窓口またはHPからダウンロードし、保護者が記入・押印。", caution:"入所後90日以内に就労を開始する必要があります。就労が決まったら速やかに就労証明書を提出してください。" },
+    ],
+  },
+  school: {
+    label:"就学・職業訓練",
+    icon:"🎓",
+    color:"#5DAA68",
+    bg:"#E8F5E9",
+    border:"#c8e6c9",
+    docs:[
+      { name:"在学証明書または入学許可書", how:"通学中の学校・訓練校の事務局に発行を依頼。", caution:"時間割・授業時間数がわかる書類の提出を求められる場合があります。" },
+    ],
+  },
+  disaster: {
+    label:"災害復旧",
+    icon:"🏚️",
+    color:"#9E8E7E",
+    bg:"#F5F0EA",
+    border:"#e0d8cc",
+    docs:[
+      { name:"罹災証明書", how:"市区町村の窓口（石岡市の場合は総務課等）で発行されます。", caution:"" },
+    ],
+  },
+};
+
+const ProofDocGuide = () => {
+  const [selected, setSelected] = useState(null);
+  const reasons = Object.entries(PROOF_DOCS);
+  const sel = selected ? PROOF_DOCS[selected] : null;
+  return (
+    <div className="fade-up" style={{borderRadius:16,border:"1.5px solid #FDDCB5",background:"#FFFAF3",overflow:"hidden",marginTop:4}}>
+      {/* ヘッダー */}
+      <div style={{padding:"12px 14px 10px",background:"linear-gradient(135deg,#FFF3E6,#FFFAF3)",borderBottom:"1px solid #F0E6D9",display:"flex",alignItems:"center",gap:8}}>
+        <I.UserCheck size={16} color={C.orange}/>
+        <span style={{fontSize:13,fontWeight:700,color:C.text}}>あなたの事由を選んでください</span>
+        <div className="do-float d2" style={{marginLeft:"auto",opacity:0.65}}><Mascot size={26}/></div>
+      </div>
+      {/* 事由ボタン */}
+      <div style={{padding:"10px 12px",display:"flex",flexWrap:"wrap",gap:6}}>
+        {reasons.map(([key, r]) => (
+          <button key={key} onClick={()=>setSelected(selected===key?null:key)} className="pbtn" style={{
+            padding:"7px 11px",borderRadius:20,fontSize:12,fontWeight:700,cursor:"pointer",
+            fontFamily:"inherit",border:"1.5px solid "+(selected===key?r.color:C.border),
+            background:selected===key?r.bg:C.white,
+            color:selected===key?r.color:C.textMid,
+            boxShadow:selected===key?"0 2px 8px rgba(0,0,0,0.08)":"none",
+            transition:"all 0.18s",
+          }}>
+            {r.icon} {r.label}
+          </button>
+        ))}
+      </div>
+      {/* 結果表示 */}
+      {sel && (
+        <div className="pop" style={{margin:"0 12px 12px",borderRadius:12,background:sel.bg,border:"1.5px solid "+sel.border,padding:"12px 14px"}}>
+          <p style={{fontSize:13,fontWeight:700,color:sel.color,marginBottom:8}}>📄 必要な書類</p>
+          {sel.docs.map((doc, i) => (
+            <div key={i} style={{marginBottom:i<sel.docs.length-1?12:0}}>
+              <p style={{fontSize:14,fontWeight:700,color:C.text}}>・{doc.name}</p>
+              <p style={{fontSize:12,color:C.textMid,marginTop:3,lineHeight:1.6}}><span style={{fontWeight:700,color:sel.color}}>入手方法：</span>{doc.how}</p>
+              {doc.caution && <p style={{fontSize:12,color:"#c05000",marginTop:3,display:"flex",alignItems:"flex-start",gap:4,lineHeight:1.6}}><I.AlertCircle size={13} color="#c05000" style={{flexShrink:0,marginTop:1}}/>{doc.caution}</p>}
+            </div>
+          ))}
+        </div>
+      )}
+      {!selected && (
+        <p style={{fontSize:12,color:C.textLight,textAlign:"center",padding:"4px 12px 12px"}}>↑ 事由をタップすると必要な書類が表示されます</p>
+      )}
+    </div>
+  );
+};
+
+/* ━━━ DOCS ━━━ */
+const DocsPage = ({ onBack }) => {
+  const [checked, setChecked] = useState({});
+  const [showProof, setShowProof] = useState(false);
+  const docs = [
+    { id:1, name:"支給認定申請書", note:"教育・保育給付の認定申請" },
+    { id:2, name:"保育所入所申込書", note:"希望施設を記入" },
+    { id:3, name:"家庭状況調書", note:"世帯構成・連絡先など" },
+    { id:4, name:"入所児童状況書", note:"お子さまの健康状態など" },
+    { id:5, name:"重要事項確認書", note:"確認事項への同意" },
+    { id:6, name:"保育の必要性を証明する書類", note:"事由によって異なります　▼ 下のガイドで確認" },
+  ];
+  const total = docs.length;
+  const done = Object.values(checked).filter(Boolean).length;
+  return (
+    <div style={{background:C.cream,minHeight:"100vh"}}>
+      <GlobalStyles />
+      <PageHeader title="必要書類チェックリスト" onBack={onBack} icon={I.FileText} />
+      <DecoBar items={[<Toy.Crayon size={20} color="#D45D8E"/>,<Toy.Note size={20} color="#5DAA68"/>,<Toy.Star size={18} color="#F28C38"/>,<Toy.Flower size={20} color="#5B8AD0"/>,<Toy.Crayon size={20}/>,<Toy.Heart size={18} color="#D45D8E"/>]} />
+      <div style={{padding:"20px 16px",maxWidth:420,margin:"0 auto"}}>
+        <Card className="fade-up" style={{marginBottom:20}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:14,fontWeight:700,color:C.text}}>準備状況</span>
+              <div className={"do-float"+(done===total?" do-wiggle":"")} style={{opacity:0.7}}><Mascot size={done===total?36:24}/></div>
+            </div>
+            <span style={{fontSize:14,fontWeight:700,color:done===total?C.green:C.orange}}>{done}/{total} 完了</span>
+          </div>
+          <div style={{width:"100%",height:12,borderRadius:999,background:C.border,overflow:"hidden"}}>
+            <div style={{height:"100%",borderRadius:999,transition:"width 0.4s ease",width:(done/total*100)+"%",background:done===total?C.green:"linear-gradient(90deg,"+C.orange+",#F2A860)"}} />
+          </div>
+          {done === total && (
+            <div style={{display:"flex",alignItems:"center",gap:8,marginTop:8}}>
+              <p style={{fontSize:14,fontWeight:700,color:C.green,display:"flex",alignItems:"center",gap:4}}>
+                <I.CheckCircle size={16} color={C.green} /> すべて揃いました！窓口へ提出できます
+              </p>
+              <div className="do-wiggle" style={{opacity:0.7}}><Toy.Rainbow size={28}/></div>
+            </div>
+          )}
+        </Card>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {docs.map((d, i) => {
+            const on = !!checked[d.id];
+            const isProof = d.id === 6;
+            return (
+              <div key={d.id} className={"fade-up "+stagger(i)}>
+                <button onClick={() => { setChecked(p => ({...p, [d.id]: !p[d.id]})); if(isProof) setShowProof(v => !v || !on); }} style={{width:"100%",textAlign:"left",padding:"14px 16px",cursor:"pointer",display:"flex",alignItems:"center",gap:12,borderRadius:isProof&&showProof?"16px 16px 0 0":16,background:on?C.greenLight:C.white,border:"1.5px solid "+(on?C.green:C.border),boxShadow:"0 2px 6px "+C.shadow,transition:"all 0.2s ease",fontFamily:"inherit",borderBottom:isProof&&showProof?"none":"1.5px solid "+(on?C.green:C.border)}}>
+                  {on ? <I.CheckCircle size={26} color={C.green} /> : <I.EmptyCircle size={26} color={C.textLight} />}
+                  <div style={{flex:1}}>
+                    <span style={{display:"block",fontSize:16,fontWeight:700,color:on?C.greenDark:C.text,textDecoration:on?"line-through":"none"}}>{d.name}</span>
+                    <span style={{display:"block",fontSize:12,color:isProof?C.orange:C.textMid,marginTop:2,fontWeight:isProof?600:400}}>{d.note}</span>
+                  </div>
+                  {on && !isProof && <div className="do-float2" style={{opacity:0.6}}><Toy.Star size={18} color={C.green}/></div>}
+                  {isProof && <span style={{fontSize:16,color:C.orange,transition:"transform 0.2s",transform:showProof?"rotate(180deg)":"rotate(0deg)",marginLeft:4}}>▼</span>}
+                </button>
+                {isProof && showProof && (
+                  <div style={{borderRadius:"0 0 16px 16px",border:"1.5px solid "+(on?C.green:C.border),borderTop:"none",background:C.white,padding:"0 0 4px"}}>
+                    <ProofDocGuide />
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{textAlign:"center",marginTop:20,opacity:0.55}}>
+          <div style={{display:"flex",justifyContent:"center",gap:10}}>
+            <div className="do-float d1"><Toy.Block size={20}/></div>
+            <div className="do-float2 d3"><Toy.CrayonG size={20}/></div>
+            <div className="do-float3 d5"><Toy.BlockB size={20}/></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ━━━ FACILITY DATA ━━━ */
+const facilityData = {
+  public: [
+    { name:"第1保育所", addr:"石岡市総社一丁目2番10号", tel:"0299-22-3122", hours:"7:30〜18:30", hoursSat:"7:30〜17:00", capacity:"84名（2号58/3号26）", age:"0歳（7ヵ月）〜", ext:true, bus:false, temp:true, holiday:false, url:"https://www.city.ishioka.lg.jp/page/page001658.html" },
+    { name:"園部保育所", addr:"石岡市真家1921番地", tel:"0299-46-4182", hours:"7:30〜18:30", hoursSat:"7:30〜17:00", capacity:"110名（2号63/3号47）", age:"0歳（3ヵ月）〜", ext:true, bus:false, temp:true, holiday:false, url:"https://www.city.ishioka.lg.jp/page/page001658.html" },
+    { name:"みなみ保育所", addr:"石岡市月岡1375番地", tel:"0299-42-4110", hours:"7:30〜18:30", hoursSat:"7:30〜17:00", capacity:"140名（2号99/3号41）", age:"0歳（3ヵ月）〜", ext:true, bus:false, temp:true, holiday:false, url:"https://www.city.ishioka.lg.jp/page/page001658.html" },
+    { name:"やさと中央保育所", addr:"石岡市柿岡2155番地", tel:"0299-44-8010", hours:"7:30〜18:30", hoursSat:"7:30〜17:00", capacity:"140名（2号94/3号46）", age:"0歳（3ヵ月）〜", ext:true, bus:false, temp:true, holiday:false, url:"https://www.city.ishioka.lg.jp/page/page001658.html" },
+  ],
+  private: [
+    { name:"石岡明照保育園", addr:"石岡市府中二丁目5番13号", tel:"0299-24-3385", hours:"7:00〜19:00", hoursSat:"7:00〜19:00", capacity:"60名（2号32/3号28）", age:"0歳（3ヵ月）〜", ext:true, bus:false, temp:true, holiday:false, url:"https://www.ans.co.jp/n/ishiokameisho/about.html" },
+    { name:"国分台ふたば保育園", addr:"石岡市北府中二丁目7番43号", tel:"0299-22-4060", hours:"7:00〜19:00", hoursSat:"7:00〜19:00", capacity:"140名（2号80/3号60）", age:"0歳（3ヵ月）〜", ext:true, bus:true, temp:true, holiday:false, url:"https://futaba-ns.com/" },
+    { name:"ひかり保育園", addr:"石岡市茨城一丁目12番21号", tel:"0299-22-3708", hours:"7:00〜19:00", hoursSat:"7:00〜19:00", capacity:"130名（2号73/3号57）", age:"0歳（1.5ヵ月）〜", ext:true, bus:false, temp:true, holiday:false, url:"http://hikari-ns.ed.jp/" },
+    { name:"わかくさ保育園", addr:"石岡市東光台五丁目12番8号", tel:"0299-26-1270", hours:"7:00〜19:00", hoursSat:"7:00〜19:00", capacity:"90名（2号54/3号36）", age:"0歳（3ヵ月）〜", ext:true, bus:false, temp:true, holiday:true, url:"https://www.seireikai.jp/service/nursery/wakakusa/" },
+    { name:"しらゆり保育園", addr:"石岡市東田中1188番地8", tel:"0299-26-7788", hours:"7:00〜19:00", hoursSat:"7:00〜19:00", capacity:"70名（2号42/3号28）", age:"0歳（3ヵ月）〜", ext:true, bus:false, temp:true, holiday:false, url:"https://www.seireikai.jp/service/nursery/shirayuri/" },
+    { name:"そとの保育園", addr:"石岡市東大橋1639番地2", tel:"0299-26-3508", hours:"7:00〜19:30", hoursSat:"7:00〜19:00", capacity:"70名（2号36/3号34）", age:"0歳（1.5ヵ月）〜", ext:true, bus:false, temp:true, holiday:true, url:"https://www.s-hikari.or.jp/" },
+    { name:"石岡ひまわり保育園", addr:"石岡市東石岡五丁目3番30号", tel:"0299-26-7327", hours:"7:00〜19:00", hoursSat:"7:00〜19:00", capacity:"60名（2号32/3号28）", age:"0歳（1.5ヵ月）〜", ext:true, bus:false, temp:true, holiday:false, url:null },
+    { name:"りんりん保育園", addr:"石岡市上林1408番地2", tel:"0299-43-3830", hours:"7:00〜19:00", hoursSat:"7:00〜19:00", capacity:"70名（2号36/3号34）", age:"0歳（2ヵ月）〜", ext:true, bus:false, temp:true, holiday:false, url:null },
+    { name:"はーとぴあ保育園石岡", addr:"石岡市根当11008番地6", tel:"0299-35-3101", hours:"7:30〜19:30", hoursSat:"7:30〜18:30", capacity:"50名（2号26/3号24）", age:"0歳（3ヵ月）〜", ext:true, bus:false, temp:true, holiday:true, url:"https://www.heart-pia.com/meguminokai/facility/hoiku_ishioka.html" },
+  ],
+};
+
+const Tag = ({ label, on }) => (
+  <span style={{display:"inline-block",padding:"2px 8px",borderRadius:8,fontSize:11,fontWeight:600,marginRight:4,marginBottom:4,background:on?"#E8F5E9":"#f5f0eb",color:on?C.greenDark:C.textLight}}>{label}</span>
+);
+
+/* ━━━ FACILITIES ━━━ */
+const FacilitiesPage = ({ onBack }) => {
+  const [tab, setTab] = useState("public");
+  const [expanded, setExpanded] = useState(null);
+  const list = facilityData[tab];
+  return (
+    <div style={{background:C.cream,minHeight:"100vh"}}>
+      <GlobalStyles />
+      <PageHeader title="施設一覧" onBack={onBack} icon={I.Building} />
+      <DecoBar items={[<Toy.Block size={20}/>,<Toy.Duck size={22}/>,<Toy.Flower size={20} color="#F28C38"/>,<Toy.Ball size={20}/>,<Toy.BlockB size={20}/>,<Toy.Star size={18} color="#5B8AD0"/>]} />
+      <div style={{padding:"20px 16px",maxWidth:480,margin:"0 auto"}}>
+        <div className="fade-up" style={{display:"flex",gap:8,marginBottom:16}}>
+          {[{key:"public",label:"公立",c:facilityData.public.length},{key:"private",label:"私立",c:facilityData.private.length}].map(t => (
+            <button key={t.key} onClick={() => { setTab(t.key); setExpanded(null); }} style={{flex:1,padding:"12px 0",borderRadius:16,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:"inherit",background:tab===t.key?(t.key==="public"?C.orange:C.green):C.white,color:tab===t.key?"#fff":C.textMid,border:"1.5px solid "+(tab===t.key?"transparent":C.border),boxShadow:tab===t.key?"0 4px 12px "+(t.key==="public"?"rgba(242,140,56,0.3)":"rgba(93,170,104,0.3)"):"none"}}>{t.label}（{t.c}園）</button>
+          ))}
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {list.map((f, i) => {
+            const isOpen = expanded === f.name;
+            return (
+              <div key={f.name} className={"fade-up "+stagger(i)}>
+                <button onClick={() => setExpanded(isOpen ? null : f.name)} className="pbtn" style={{width:"100%",textAlign:"left",borderRadius:isOpen?"16px 16px 0 0":16,padding:"14px 16px",background:C.white,border:"1px solid "+C.border,boxShadow:"0 2px 6px "+C.shadow,cursor:"pointer",fontFamily:"inherit",display:"flex",alignItems:"center",gap:12,borderBottom:isOpen?"none":"1px solid "+C.border}}>
+                  <div style={{width:40,height:40,borderRadius:12,flexShrink:0,background:tab==="public"?C.orangeLight:C.greenLight,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    {tab==="public"?<I.Tree size={20} color={C.orange} />:<I.Smile size={20} color={C.green} />}
+                  </div>
+                  <div style={{flex:1}}>
+                    <span style={{display:"block",fontSize:15,fontWeight:700,color:C.text}}>{f.name}</span>
+                    <span style={{fontSize:12,color:C.textLight}}>{f.addr}</span>
+                  </div>
+                  <span style={{fontSize:18,color:C.textLight,transition:"transform 0.2s",transform:isOpen?"rotate(180deg)":"rotate(0deg)"}}>▼</span>
+                </button>
+                {isOpen && (
+                  <div className="pop" style={{background:C.white,border:"1px solid "+C.border,borderTop:"none",borderRadius:"0 0 16px 16px",padding:"12px 16px",boxShadow:"0 2px 6px "+C.shadow}}>
+                    <div style={{display:"flex",flexDirection:"column",gap:8,fontSize:13,color:C.textMid}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}><I.Phone size={14} color={C.orange} /><span><strong style={{color:C.text}}>電話：</strong>{f.tel}</span></div>
+                      <div style={{display:"flex",alignItems:"flex-start",gap:8}}><I.Clock size={14} color={C.orange} style={{marginTop:2,flexShrink:0}} /><div><span><strong style={{color:C.text}}>開所時間</strong></span><br/><span>平日：{f.hours}</span><br/><span>土曜：{f.hoursSat}</span></div></div>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}><I.Heart size={14} color={C.orange} /><span><strong style={{color:C.text}}>受入年齢：</strong>{f.age}</span></div>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}><I.UserCheck size={14} color={C.orange} /><span><strong style={{color:C.text}}>定員：</strong>{f.capacity}</span></div>
+                      <div style={{marginTop:4}}><Tag label="延長保育" on={f.ext} /><Tag label="送迎バス" on={f.bus} /><Tag label="一時保育" on={f.temp} /><Tag label="休日保育" on={f.holiday} /></div>
+                      <div style={{display:"flex",gap:8,marginTop:8}}>
+                        <a href={"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(f.addr+" "+f.name)} target="_blank" rel="noopener noreferrer" className="pbtn" style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 0",borderRadius:12,fontSize:13,fontWeight:700,background:C.orange,color:"#fff",textDecoration:"none",boxShadow:"0 3px 10px rgba(242,140,56,0.3)"}}><I.MapPin size={15} color="#fff" /> マップ</a>
+                        <a href={"tel:"+f.tel} className="pbtn" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 14px",borderRadius:12,fontSize:13,fontWeight:700,background:C.greenLight,color:C.greenDark,textDecoration:"none",border:"1.5px solid "+C.green}}><I.Phone size={15} color={C.greenDark} /> 電話</a>
+                        {f.url && <a href={f.url} target="_blank" rel="noopener noreferrer" className="pbtn" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 14px",borderRadius:12,fontSize:13,fontWeight:700,background:"#E8F0FA",color:"#5B8AD0",textDecoration:"none",border:"1.5px solid #5B8AD0"}}><I.Info size={15} color="#5B8AD0" /> HP</a>}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <p className="fade-up" style={{fontSize:11,color:C.textLight,marginTop:16,textAlign:"center"}}>※令和8年度入所案内（令和7年10月時点）の情報に基づきます。</p>
+        <div style={{textAlign:"center",marginTop:12,opacity:0.55}}>
+          <div style={{display:"flex",justifyContent:"center",gap:12,alignItems:"flex-end"}}>
+            <div className="do-float d2"><Toy.Duck size={24}/></div>
+            <div className="do-float2 d4" style={{marginBottom:2}}><Mascot size={36}/></div>
+            <div className="do-float d1"><Toy.Ball size={22}/></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ━━━ DIAGNOSIS ━━━ */
+const DiagnosisPage = ({ onBack }) => {
+  const questions = [
+    { id:"resident", text:"石岡市に住民票がありますか？" },
+    { id:"age", text:"お子さまは就学前（小学校入学前）ですか？" },
+    { id:"work", text:"保護者は就労していますか？（月60時間以上）" },
+    { id:"both", text:"保護者全員に保育が必要な理由がありますか？（共働き・ひとり親等）" },
+    { id:"hours", text:"就労時間は月120時間以上ですか？" },
+  ];
+  const [step, setStep] = useState(0);
+  const [answers, setAnswers] = useState({});
+  const [showResult, setShowResult] = useState(false);
+
+  const handleAnswer = (val) => {
+    const q = questions[step];
+    const next = {...answers, [q.id]: val};
+    setAnswers(next);
+    if ((q.id==="resident"&&!val)||(q.id==="age"&&!val)||(q.id==="both"&&!val)) { setShowResult(true); return; }
+    if (step < questions.length - 1) setStep(step + 1);
+    else setShowResult(true);
+  };
+  const reset = () => { setStep(0); setAnswers({}); setShowResult(false); };
+  const getResult = () => {
+    if (!answers.resident) return { ok:false, msg:"石岡市に住民票がある方が対象です。転入予定の場合は、こども未来課へご相談ください。" };
+    if (!answers.age) return { ok:false, msg:"保育所は就学前のお子さまが対象です。" };
+    if (!answers.both) return { ok:false, msg:"保護者全員に保育の必要性が認められる必要があります。求職中（最大90日）の場合も申請可能です。こども未来課へご相談ください。" };
+    return { ok:true, category:answers.hours?"保育標準時間（最大11時間）":"保育短時間（最大8時間）", docs:answers.work?["就労証明書（勤務先に記入依頼）"]:["保育の必要性を証明する書類（求職活動申立書・診断書等）"] };
+  };
+
+  if (showResult) {
+    const r = getResult();
+    return (
+      <div style={{background:C.cream,minHeight:"100vh"}}>
+        <GlobalStyles />
+        <PageHeader title="診断結果" onBack={onBack} icon={I.UserCheck} />
+        <DecoBar items={[<Toy.Star size={20} color="#F28C38"/>,<Toy.Heart size={20} color="#D45D8E"/>,<Toy.Rainbow size={28}/>,<Toy.Flower size={20} color="#5DAA68"/>,<Toy.Star size={20} color="#5B8AD0"/>]} />
+        <div style={{padding:"24px 16px",maxWidth:420,margin:"0 auto"}}>
+          <div className="pop" style={{borderRadius:24,padding:24,textAlign:"center",background:C.white,border:"2px solid "+(r.ok?C.green:C.orange),boxShadow:"0 6px 24px "+C.shadow}}>
+            <div style={{position:"relative",display:"inline-block",marginBottom:12}}>
+              <div className={"do-float"+(r.ok?" do-wiggle":"")} style={{display:"inline-block"}}><Mascot size={64} /></div>
+              {r.ok && (
+                <>
+                  <div className="do-float2 d1" style={{position:"absolute",top:-10,left:-30,opacity:0.7}}><Toy.Star size={22} color="#F28C38"/></div>
+                  <div className="do-float d3" style={{position:"absolute",top:-8,right:-28,opacity:0.7}}><Toy.Heart size={20} color="#D45D8E"/></div>
+                  <div className="do-float3 d2" style={{position:"absolute",bottom:-8,left:-26,opacity:0.65}}><Toy.Flower size={20} color="#5DAA68"/></div>
+                  <div className="do-float2 d4" style={{position:"absolute",bottom:-6,right:-24,opacity:0.65}}><Toy.Rainbow size={28}/></div>
+                </>
+              )}
+            </div>
+            {r.ok ? (
+              <div>
+                <p style={{fontSize:18,fontWeight:900,color:C.green}}>申請できる可能性が高いです！</p>
+                <div style={{borderRadius:16,padding:16,background:C.greenLight,marginTop:16,textAlign:"left"}}><p style={{fontSize:14,fontWeight:700,color:C.greenDark}}>認定区分（目安）</p><p style={{fontSize:16,fontWeight:700,color:C.text,marginTop:4}}>{r.category}</p></div>
+                <div style={{borderRadius:16,padding:16,background:C.orangeLight,marginTop:12,textAlign:"left"}}><p style={{fontSize:14,fontWeight:700,color:C.orange}}>必要な証明書類</p>{r.docs.map(d => <p key={d} style={{fontSize:14,color:C.text,marginTop:4}}>・{d}</p>)}</div>
+                <p style={{fontSize:12,color:C.textLight,marginTop:16}}>※この診断は目安です。正式な認定は市の審査により決定されます。</p>
+              </div>
+            ) : (
+              <div>
+                <p style={{fontSize:18,fontWeight:900,color:C.orange}}>ご確認ください</p>
+                <p style={{fontSize:14,color:C.textMid,marginTop:12}}>{r.msg}</p>
+              </div>
+            )}
+            <button onClick={reset} className="pbtn" style={{marginTop:20,padding:"12px 24px",borderRadius:16,fontSize:14,fontWeight:700,color:"#fff",fontFamily:"inherit",background:C.orange,border:"none",cursor:"pointer",boxShadow:"0 4px 12px rgba(242,140,56,0.3)"}}>もう一度診断する</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const progress = (step / questions.length) * 100;
+  const toyIcons = [<Toy.Block size={22}/>,<Toy.Crayon size={22} color="#D45D8E"/>,<Toy.Duck size={22}/>,<Toy.Ball size={22}/>,<Toy.Star size={22} color="#5DAA68"/>];
+  return (
+    <div style={{background:C.cream,minHeight:"100vh"}}>
+      <GlobalStyles />
+      <PageHeader title="入所資格かんたん診断" onBack={onBack} icon={I.UserCheck} />
+      <DecoBar items={[<Toy.Block size={20}/>,<Toy.Star size={18} color="#D45D8E"/>,<Toy.Duck size={22}/>,<Toy.Rainbow size={26}/>,<Toy.Flower size={20} color="#F28C38"/>,<Toy.Ball size={20}/>]} />
+      <div style={{padding:"24px 16px",maxWidth:420,margin:"0 auto"}}>
+        <div className="fade-up" style={{marginBottom:16}}>
+          <span style={{fontSize:12,color:C.textMid}}>質問 {step + 1} / {questions.length}</span>
+          <div style={{width:"100%",height:8,borderRadius:999,background:C.border,marginTop:4}}><div style={{height:"100%",borderRadius:999,width:progress+"%",background:"linear-gradient(90deg,"+C.orange+","+C.green+")",transition:"width 0.4s"}} /></div>
+        </div>
+        <div key={step} className="pop" style={{borderRadius:24,padding:24,background:C.white,border:"1.5px solid "+C.border,boxShadow:"0 4px 16px "+C.shadow}}>
+          <div style={{display:"flex",justifyContent:"center",marginBottom:12}}>
+            <div className={"do-float d"+(step+1)}>{toyIcons[step]}</div>
+          </div>
+          <p style={{fontSize:18,fontWeight:700,color:C.text,lineHeight:1.6,textAlign:"center"}}>{questions[step].text}</p>
+          <div style={{display:"flex",gap:12,marginTop:24}}>
+            <button onClick={() => handleAnswer(true)} className="pbtn" style={{flex:1,padding:"16px 0",borderRadius:16,fontSize:16,fontWeight:700,color:"#fff",background:C.green,border:"none",cursor:"pointer",fontFamily:"inherit",boxShadow:"0 4px 12px rgba(93,170,104,0.3)"}}>はい</button>
+            <button onClick={() => handleAnswer(false)} className="pbtn" style={{flex:1,padding:"16px 0",borderRadius:16,fontSize:16,fontWeight:700,color:C.textMid,background:C.white,border:"2px solid "+C.border,cursor:"pointer",fontFamily:"inherit"}}>いいえ</button>
+          </div>
+        </div>
+        <div style={{textAlign:"center",marginTop:20,opacity:0.55}}>
+          <div className="do-wiggle" style={{display:"inline-block"}}><Mascot size={36}/></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ━━━ 認定区分かんたん診断 ━━━ */
+const NinteiDiagnosis = () => {
+  const [step, setStep] = useState(0);
+  const [result, setResult] = useState(null);
+  const questions = [
+    { q:"お子さまの年齢は？", opts:[{label:"0〜2歳", action:"age02"},{label:"3〜5歳", action:"age35"}]},
+  ];
+  const q2_care = { q:"保護者に保育が必要な理由がありますか？\n（就労・出産・疾病・介護・求職など）", opts:[{label:"はい", action:"care_yes"},{label:"いいえ", action:"care_no"}]};
+  const q3_hours = { q:"就労時間は月120時間以上ですか？", opts:[{label:"はい（120時間以上）", action:"hours_long"},{label:"いいえ（60〜120時間未満）", action:"hours_short"}]};
+  const results = {
+    "1号": { num:"1号認定", color:"#5B8AD0", bg:"#E8F0FA", border:"#c8d8f0", desc:"教育のみの認定です", facility:"幼稚園・認定こども園", time:"教育標準時間（4時間程度）", fee:"全世帯 無料" },
+    "2号標準": { num:"2号認定", color:C.orange, bg:C.orangeLight, border:C.orangeSoft, desc:"保育が必要な3〜5歳児", facility:"保育所・認定こども園", time:"保育標準時間（最大11時間）", fee:"全世帯 無料" },
+    "2号短時間": { num:"2号認定", color:C.orange, bg:C.orangeLight, border:C.orangeSoft, desc:"保育が必要な3〜5歳児", facility:"保育所・認定こども園", time:"保育短時間（最大8時間）", fee:"全世帯 無料" },
+    "3号標準": { num:"3号認定", color:"#D45D8E", bg:"#FFF0F3", border:"#f0d0d8", desc:"保育が必要な0〜2歳児", facility:"保育所・小規模保育・認定こども園", time:"保育標準時間（最大11時間）", fee:"所得に応じて決定" },
+    "3号短時間": { num:"3号認定", color:"#D45D8E", bg:"#FFF0F3", border:"#f0d0d8", desc:"保育が必要な0〜2歳児", facility:"保育所・小規模保育・認定こども園", time:"保育短時間（最大8時間）", fee:"所得に応じて決定" },
+  };
+  const [age, setAge] = useState(null);
+  const currentQ = step === 0 ? questions[0] : step === 1 ? q2_care : step === 2 ? q3_hours : null;
+  const handleOpt = (action) => {
+    if (step === 0) { setAge(action); setStep(1); }
+    else if (step === 1) {
+      if (action === "care_no") { if (age === "age35") setResult(results["1号"]); else setStep(99); }
+      else setStep(2);
+    } else if (step === 2) {
+      if (age === "age35") setResult(action === "hours_long" ? results["2号標準"] : results["2号短時間"]);
+      else setResult(action === "hours_long" ? results["3号標準"] : results["3号短時間"]);
+    }
+  };
+  const reset = () => { setStep(0); setResult(null); setAge(null); };
+  if (step === 99) return (
+    <Card className="fade-up">
+      <h3 style={{fontSize:15,fontWeight:700,color:C.text,display:"flex",alignItems:"center",gap:8}}><I.UserCheck size={18} color={C.orange} /> 認定区分チェック結果</h3>
+      <div className="pop" style={{marginTop:12,borderRadius:12,padding:16,background:C.orangeLight,textAlign:"center"}}>
+        <p style={{fontSize:14,fontWeight:700,color:C.orange}}>0〜2歳で保育の必要性がない場合</p>
+        <p style={{fontSize:13,color:C.textMid,marginTop:8}}>保育所等の入所には「保育の必要性」が必要です。こども未来課へご相談ください。</p>
+      </div>
+      <button onClick={reset} className="pbtn" style={{marginTop:12,width:"100%",padding:"10px",borderRadius:12,fontSize:13,fontWeight:700,background:C.white,color:C.orange,border:"1.5px solid "+C.orange,cursor:"pointer",fontFamily:"inherit"}}>もう一度チェックする</button>
+    </Card>
+  );
+  if (result) return (
+    <Card className="fade-up">
+      <h3 style={{fontSize:15,fontWeight:700,color:C.text,display:"flex",alignItems:"center",gap:8}}><I.UserCheck size={18} color={result.color} /> 認定区分チェック結果</h3>
+      <div className="pop" style={{marginTop:12,borderRadius:16,padding:16,background:result.bg,border:"2px solid "+result.border,textAlign:"center"}}>
+        <p style={{fontSize:24,fontWeight:900,color:result.color}}>{result.num}</p>
+        <p style={{fontSize:13,color:C.textMid,marginTop:4}}>{result.desc}</p>
+        <div className="do-float d1" style={{marginTop:8,display:"inline-block",opacity:0.7}}>
+          {result.num.includes("3") ? <Toy.Duck size={28}/> : result.num.includes("2") ? <Toy.Block size={28}/> : <Toy.Star size={28} color="#5B8AD0"/>}
+        </div>
+      </div>
+      <div style={{marginTop:12,fontSize:13,color:C.textMid,lineHeight:1.8}}>
+        <p><strong style={{color:C.text}}>利用できる施設：</strong>{result.facility}</p>
+        <p><strong style={{color:C.text}}>利用時間：</strong>{result.time}</p>
+        <p><strong style={{color:C.text}}>保育料：</strong><span style={{fontWeight:700,color:result.fee.includes("無料")?C.green:result.color}}>{result.fee}</span></p>
+      </div>
+      <p style={{fontSize:11,color:C.textLight,marginTop:8}}>※この診断は目安です。正式な認定は市の審査で決定されます。</p>
+      <button onClick={reset} className="pbtn" style={{marginTop:10,width:"100%",padding:"10px",borderRadius:12,fontSize:13,fontWeight:700,background:C.white,color:result.color,border:"1.5px solid "+result.color,cursor:"pointer",fontFamily:"inherit"}}>もう一度チェックする</button>
+    </Card>
+  );
+  return (
+    <Card className="fade-up">
+      <h3 style={{fontSize:15,fontWeight:700,color:C.text,display:"flex",alignItems:"center",gap:8}}><I.UserCheck size={18} color="#5B8AD0" /> うちの子は何号認定？</h3>
+      <p style={{fontSize:12,color:C.textLight,marginTop:4}}>かんたんな質問に答えると認定区分がわかります</p>
+      {currentQ && (
+        <div key={step} className="pop" style={{marginTop:12}}>
+          <p style={{fontSize:15,fontWeight:700,color:C.text,lineHeight:1.6,whiteSpace:"pre-line"}}>{currentQ.q}</p>
+          <div style={{display:"flex",gap:8,marginTop:12}}>
+            {currentQ.opts.map(opt => (
+              <button key={opt.label} onClick={()=>handleOpt(opt.action)} className="pbtn" style={{flex:1,padding:"14px 8px",borderRadius:12,fontSize:14,fontWeight:700,background:C.white,color:C.text,border:"2px solid "+C.border,cursor:"pointer",fontFamily:"inherit"}}>{opt.label}</button>
+            ))}
+          </div>
+          <div style={{marginTop:10,display:"flex",gap:4}}>
+            {[0,1,2].map(i=>(<div key={i} style={{flex:1,height:4,borderRadius:2,background:i<=step?"#5B8AD0":C.border}} />))}
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+};
+
+/* ━━━ FEES ━━━ */
+const feeTable2_3 = [
+  { layer:"1", label:"生活保護世帯", std0_2:0, short0_2:0 },
+  { layer:"2", label:"市町村民税\n非課税世帯", std0_2:0, short0_2:0 },
+  { layer:"3", label:"48,600円未満", std0_2:15000, short0_2:14700 },
+  { layer:"4", label:"97,000円未満", std0_2:24000, short0_2:23600 },
+  { layer:"5", label:"169,000円未満", std0_2:37000, short0_2:36400 },
+  { layer:"6", label:"301,000円未満", std0_2:45000, short0_2:44200 },
+  { layer:"7", label:"397,000円未満", std0_2:54000, short0_2:53100 },
+  { layer:"8", label:"397,000円以上", std0_2:62000, short0_2:60900 },
+];
+const fmt = (n) => n === 0 ? "無料" : n.toLocaleString()+"円";
+
+const FeesPage = ({ onBack }) => {
+  const [showTable, setShowTable] = useState(false);
+  return (
+  <div style={{background:C.cream,minHeight:"100vh"}}>
+    <GlobalStyles />
+    <PageHeader title="保育料について" onBack={onBack} icon={I.DollarSign} />
+    <DecoBar items={[<Toy.Star size={20} color="#9B7EC8"/>,<Toy.Block size={20}/>,<Toy.Crayon size={20} color="#D45D8E"/>,<Toy.Rainbow size={26}/>,<Toy.Heart size={20} color="#D45D8E"/>,<Toy.BlockB size={20}/>]} />
+    <div style={{padding:"20px 16px",maxWidth:480,margin:"0 auto",display:"flex",flexDirection:"column",gap:16}}>
+      <NinteiDiagnosis />
+      <Card className="fade-up s1">
+        <h3 style={{fontSize:16,fontWeight:700,color:"#5B8AD0",display:"flex",alignItems:"center",gap:8}}><I.Star size={18} color="#5B8AD0" /> 1号認定の保育料（3〜5歳）</h3>
+        <div style={{marginTop:10,borderRadius:12,padding:"16px",background:"#E8F0FA",textAlign:"center"}}>
+          <p style={{fontSize:14,color:"#5B8AD0",fontWeight:700}}>全階層</p>
+          <p style={{fontSize:28,fontWeight:900,color:C.green,margin:"4px 0"}}>無料</p>
+          <p style={{fontSize:12,color:C.textLight}}>（所得に関係なく全世帯無償）</p>
+        </div>
+        <p style={{fontSize:12,color:C.textMid,marginTop:8}}>幼稚園・認定こども園の教育部分は全世帯無償です。給食費・バス代等は別途かかります。</p>
+      </Card>
+      <Card className="fade-up s2">
+        <h3 style={{fontSize:16,fontWeight:700,color:C.orange,display:"flex",alignItems:"center",gap:8}}><I.Star size={18} color={C.orange} /> 2号認定の保育料（3〜5歳）</h3>
+        <div style={{marginTop:10,borderRadius:12,padding:"16px",background:C.orangeLight,textAlign:"center"}}>
+          <p style={{fontSize:14,color:C.orange,fontWeight:700}}>全階層</p>
+          <p style={{fontSize:28,fontWeight:900,color:C.green,margin:"4px 0"}}>無料</p>
+        </div>
+        <p style={{fontSize:12,color:C.textMid,marginTop:8}}>保育所・認定こども園で保育を利用する3〜5歳児も全世帯無償です。給食費は施設に直接お支払いとなります。</p>
+      </Card>
+      <Card className="fade-up s3">
+        <h3 style={{fontSize:16,fontWeight:700,color:"#D45D8E",display:"flex",alignItems:"center",gap:8}}><I.Heart size={18} color="#D45D8E" /> 3号認定の保育料（0〜2歳）</h3>
+        <p style={{fontSize:14,color:C.textMid,marginTop:8}}>世帯の<strong>市町村民税所得割額</strong>の合計と、認定区分で決まります。</p>
+        <button onClick={()=>setShowTable(!showTable)} className="pbtn" style={{marginTop:12,width:"100%",padding:"12px",borderRadius:12,fontSize:14,fontWeight:700,background:showTable?C.orangeLight:C.orange,color:showTable?C.orange:"#fff",border:showTable?"1.5px solid "+C.orange:"none",cursor:"pointer",fontFamily:"inherit"}}>
+          {showTable?"▲ 料金表を閉じる":"▼ 0〜2歳児の料金表を見る"}
+        </button>
+      </Card>
+      {showTable && (
+        <div className="pop" style={{overflowX:"auto",borderRadius:16,border:"1px solid "+C.border,boxShadow:"0 2px 8px "+C.shadow}}>
+          <div style={{padding:"12px 16px 8px",background:C.orangeLight}}>
+            <p style={{fontSize:13,fontWeight:700,color:C.orange}}>3号認定（0〜2歳児）保育料（月額）</p>
+          </div>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12,background:C.white,tableLayout:"fixed"}}>
+            <colgroup>
+              <col style={{width:"10%"}} />
+              <col style={{width:"36%"}} />
+              <col style={{width:"27%"}} />
+              <col style={{width:"27%"}} />
+            </colgroup>
+            <thead>
+              <tr style={{background:C.cream}}>
+                <th style={{padding:"10px 6px 10px 12px",textAlign:"center",borderBottom:"2px solid "+C.border,fontSize:11,color:C.textMid}}>階層</th>
+                <th style={{padding:"10px 8px",textAlign:"left",borderBottom:"2px solid "+C.border,fontSize:11,color:C.textMid}}>所得割額</th>
+                <th style={{padding:"10px 12px 10px 4px",textAlign:"right",borderBottom:"2px solid "+C.border,fontSize:11,color:C.orange}}>標準時間</th>
+                <th style={{padding:"10px 12px 10px 4px",textAlign:"right",borderBottom:"2px solid "+C.border,fontSize:11,color:C.green}}>短時間</th>
+              </tr>
+            </thead>
+            <tbody>
+              {feeTable2_3.map((r,i)=>(
+                <tr key={r.layer} style={{background:i%2===0?C.white:"#fafaf5"}}>
+                  <td style={{padding:"10px 6px 10px 12px",textAlign:"center",borderBottom:"1px solid "+C.border,fontWeight:700,color:C.text,fontSize:13}}>{r.layer}</td>
+                  <td style={{padding:"10px 8px",borderBottom:"1px solid "+C.border,color:C.textMid,whiteSpace:"pre-line",fontSize:11,lineHeight:1.6}}>{r.label}</td>
+                  <td style={{padding:"10px 12px 10px 4px",borderBottom:"1px solid "+C.border,textAlign:"right",fontWeight:700,color:r.std0_2===0?C.green:C.text,fontSize:12}}>{fmt(r.std0_2)}</td>
+                  <td style={{padding:"10px 12px 10px 4px",borderBottom:"1px solid "+C.border,textAlign:"right",fontWeight:700,color:r.short0_2===0?C.green:C.text,fontSize:12}}>{fmt(r.short0_2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <Card className={"fade-up "+(showTable?"":"s2")}>
+        <h3 style={{fontSize:14,fontWeight:700,color:C.text,display:"flex",alignItems:"center",gap:8}}><I.Star size={16} color={C.green} /> 多子軽減制度</h3>
+        <p style={{fontSize:13,color:C.textMid,marginTop:6}}>きょうだいが保育施設等を同時利用している場合：</p>
+        <div style={{marginTop:8,display:"flex",gap:8}}>
+          <div style={{flex:1,borderRadius:12,padding:"10px",background:C.greenLight,textAlign:"center"}}>
+            <p style={{fontSize:12,color:C.greenDark,fontWeight:700}}>第2子</p>
+            <p style={{fontSize:18,fontWeight:900,color:C.greenDark,marginTop:2}}>半額</p>
+          </div>
+          <div style={{flex:1,borderRadius:12,padding:"10px",background:C.green,textAlign:"center"}}>
+            <p style={{fontSize:12,color:"#fff",fontWeight:700}}>第3子以降</p>
+            <p style={{fontSize:18,fontWeight:900,color:"#fff",marginTop:2}}>無償</p>
+          </div>
+        </div>
+      </Card>
+      <Card className={"fade-up "+(showTable?"":"s3")}>
+        <h3 style={{fontSize:15,fontWeight:700,color:C.text,display:"flex",alignItems:"center",gap:8}}><I.Clock size={16} color={C.orange} /> 保育料の決まり方</h3>
+        <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:10}}>
+          {[{n:1,t:"父と母の市町村民税所得割額を合算",d:"両親の所得割額を足した金額が基準になります。"},{n:2,t:"上の料金表の階層に当てはめる",d:"合算した金額がどの階層に該当するか確認します。"},{n:3,t:"認定区分（標準時間 or 短時間）で決定",d:"就労時間によって標準時間か短時間かが決まります。"}].map(s=>(
+            <div key={s.n} style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+              <div style={{width:28,height:28,borderRadius:"50%",background:C.orange,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:14,flexShrink:0}}>{s.n}</div>
+              <div><p style={{fontSize:13,fontWeight:700,color:C.text}}>{s.t}</p><p style={{fontSize:12,color:C.textMid,marginTop:2}}>{s.d}</p></div>
+            </div>
+          ))}
+        </div>
+      </Card>
+      <Card className={"fade-up "+(showTable?"":"s4")}>
+        <h3 style={{fontSize:15,fontWeight:700,color:"#5B8AD0",display:"flex",alignItems:"center",gap:8}}><I.Clock size={16} color="#5B8AD0" /> いつの税額で計算される？</h3>
+        <div style={{marginTop:10,display:"flex",gap:8}}>
+          <div style={{flex:1,borderRadius:12,padding:"12px 10px",background:"#E8F0FA",textAlign:"center"}}>
+            <p style={{fontSize:18,fontWeight:900,color:"#5B8AD0"}}>4〜8月</p>
+            <p style={{fontSize:11,color:C.textMid,marginTop:4}}>令和7年度の税額で計算</p>
+          </div>
+          <div style={{flex:1,borderRadius:12,padding:"12px 10px",background:C.orangeLight,textAlign:"center"}}>
+            <p style={{fontSize:18,fontWeight:900,color:C.orange}}>9〜3月</p>
+            <p style={{fontSize:11,color:C.textMid,marginTop:4}}>令和8年度の税額で計算</p>
+          </div>
+        </div>
+      </Card>
+      <Card className={"fade-up "+(showTable?"":"s5")}>
+        <h3 style={{fontSize:15,fontWeight:700,color:C.green,display:"flex",alignItems:"center",gap:8}}><I.Info size={16} color={C.green} /> 所得割額はどこで確認できる？</h3>
+        <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:10}}>
+          <div style={{borderRadius:12,padding:"12px",background:C.greenLight,border:"1px solid #c8e6c9"}}><p style={{fontSize:13,fontWeight:700,color:C.greenDark}}>① 住民税の通知書</p><p style={{fontSize:12,color:C.textMid,marginTop:4}}>毎年6月頃に届く「市民税・県民税 税額決定通知書」に記載。</p></div>
+          <div style={{borderRadius:12,padding:"12px",background:"#E8F0FA",border:"1px solid #c8d8f0"}}><p style={{fontSize:13,fontWeight:700,color:"#5B8AD0"}}>② 課税証明書</p><p style={{fontSize:12,color:C.textMid,marginTop:4}}>市役所窓口で発行（1通300円）。</p></div>
+          <div style={{borderRadius:12,padding:"12px",background:C.orangeLight,border:"1px solid "+C.orangeSoft}}><p style={{fontSize:13,fontWeight:700,color:C.orange}}>③ 確定申告書から計算</p><p style={{fontSize:12,color:C.textMid,marginTop:4}}>自営業の方はこども未来課に相談すると概算を教えてもらえます。</p></div>
+        </div>
+      </Card>
+      {/* ししまるくん＋グッズ */}
+      <div style={{textAlign:"center",padding:"8px 0",opacity:0.6}}>
+        <div style={{display:"flex",justifyContent:"center",alignItems:"flex-end",gap:12}}>
+          <div className="do-float d1"><Toy.Block size={22}/></div>
+          <div className="do-wiggle" style={{display:"inline-block"}}><Mascot size={44}/></div>
+          <div className="do-float2 d3"><Toy.Crayon size={22} color="#D45D8E"/></div>
+        </div>
+        <p style={{fontSize:12,color:C.textLight,marginTop:6}}>保育料についてはこども未来課へ！</p>
+      </div>
+    </div>
+  </div>
+  );
+};
+
+/* ━━━ CONTACT + FAQ CHAT ━━━ */
+const ContactPage = ({ onBack }) => {
+  const [messages, setMessages] = useState([
+    { from:"bot", text:"こんにちは！保育所入所についてのご質問にお答えします。下のよくある質問をタップするか、自由に入力してください。" }
+  ]);
+  const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const chatEndRef = useRef(null);
+  useEffect(() => { chatEndRef.current && chatEndRef.current.scrollIntoView({ behavior:"smooth" }); }, [messages, isTyping]);
+  const sendMessage = (text) => {
+    const userText = text || input.trim();
+    if (!userText) return;
+    setMessages(prev => [...prev, { from:"user", text:userText }]);
+    setInput("");
+    setIsTyping(true);
+    setTimeout(() => {
+      const faq = findFaqAnswer(userText);
+      const botReply = faq ? faq.a : "申し訳ありません。その質問にはお答えできませんでした。お手数ですが、こども未来課（保育担当）へ直接お問い合わせください。\n\n受付：平日 8:30～17:15\n場所：石岡市役所 本庁舎";
+      setIsTyping(false);
+      setMessages(prev => [...prev, { from:"bot", text:botReply }]);
+    }, 800 + Math.random() * 600);
+  };
+  const suggestedQs = ["申請の締切は？","必要な書類は？","保育料はいくら？","パートでも申請できる？","求職中でも大丈夫？"];
+  return (
+    <div style={{background:C.cream,minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+      <GlobalStyles />
+      <PageHeader title="窓口・お問合せ" onBack={onBack} icon={I.Phone} />
+      <DecoBar items={[<Toy.Duck size={22}/>,<Toy.Ball size={20}/>,<Toy.Flower size={20} color="#4DB6AC"/>,<Toy.Star size={18} color="#4DB6AC"/>,<Toy.Heart size={18} color="#D45D8E"/>,<Toy.Rainbow size={26}/>]} />
+      <div style={{flex:1,overflowY:"auto",padding:"12px 16px",maxWidth:420,margin:"0 auto",width:"100%"}}>
+        {[
+          { name:"石岡市役所 こども未来課（保育担当）", loc:"石岡市石岡一丁目1番地1", note:"本庁舎・申込み＆問合せ", tel:"0299-23-1111" },
+          { name:"八郷総合支所 市民窓口課", loc:"石岡市柿岡5680番地1", note:"八郷地区・申込みのみ", tel:"0299-43-1111" },
+        ].map((o, i) => (
+          <Card key={o.name} className={"fade-up "+stagger(i)} style={{marginBottom:8}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <span style={{display:"inline-block",padding:"2px 10px",borderRadius:999,fontSize:12,fontWeight:700,background:C.greenLight,color:C.greenDark}}>{o.note}</span>
+              <div className={"do-float d"+(i+1)} style={{opacity:0.6}}><Mascot size={28}/></div>
+            </div>
+            <p style={{fontSize:15,fontWeight:700,color:C.text,marginTop:8}}>{o.name}</p>
+            <p style={{fontSize:13,color:C.textMid,marginTop:4,display:"flex",alignItems:"center",gap:4}}><I.MapPin size={14} color={C.textMid} />{o.loc}</p>
+            <p style={{fontSize:13,color:C.textMid,marginTop:6,display:"flex",alignItems:"center",gap:4}}><I.Phone size={13} color={C.orange} /><strong style={{color:C.text}}>電話：</strong>{o.tel}</p>
+            <div style={{display:"flex",gap:8,marginTop:10}}>
+              <a href={"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(o.loc+" "+o.name)} target="_blank" rel="noopener noreferrer" className="pbtn" style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 0",borderRadius:12,fontSize:13,fontWeight:700,background:C.orange,color:"#fff",textDecoration:"none",boxShadow:"0 3px 10px rgba(242,140,56,0.3)"}}>
+                <I.MapPin size={15} color="#fff" /> Googleマップで見る
+              </a>
+              <a href={"tel:"+o.tel} className="pbtn" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,padding:"10px 16px",borderRadius:12,fontSize:13,fontWeight:700,background:C.greenLight,color:C.greenDark,textDecoration:"none",border:"1.5px solid "+C.green}}>
+                <I.Phone size={15} color={C.greenDark} /> 電話
+              </a>
+            </div>
+          </Card>
+        ))}
+        <div className="fade-up s3" style={{borderRadius:16,padding:12,background:C.orangeLight,border:"1px solid "+C.orangeSoft,marginBottom:16}}>
+          <p style={{fontSize:13,fontWeight:700,color:C.orange}}>受付時間：平日 8:30～17:15</p>
+        </div>
+        <div className="fade-up s4" style={{marginBottom:8}}>
+          <p style={{fontSize:15,fontWeight:700,color:C.text,display:"flex",alignItems:"center",gap:8,marginBottom:12}}>
+            <I.MessageCircle size={18} color={C.orange} /> よくある質問チャット
+          </p>
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:8,marginBottom:12}}>
+          {messages.map((m, i) => (
+            <div key={i} className={i === 0 ? "fade-up" : "pop"} style={{display:"flex",justifyContent:m.from==="user"?"flex-end":"flex-start",gap:8}}>
+              {m.from === "bot" && <div style={{width:36,height:36,flexShrink:0,marginTop:4}}><Mascot size={36} /></div>}
+              <div style={{maxWidth:"78%",padding:"12px 16px",borderRadius:m.from==="user"?"18px 18px 4px 18px":"18px 18px 18px 4px",background:m.from==="user"?C.orange:C.white,color:m.from==="user"?"#fff":C.text,fontSize:14,lineHeight:1.6,border:m.from==="bot"?"1px solid "+C.border:"none",boxShadow:"0 2px 6px "+C.shadow,whiteSpace:"pre-line"}}>{m.text}</div>
+            </div>
+          ))}
+          {isTyping && (
+            <div className="pop" style={{display:"flex",gap:8}}>
+              <div style={{width:36,height:36,flexShrink:0,marginTop:4}}><Mascot size={36} /></div>
+              <div style={{padding:"12px 20px",borderRadius:"18px 18px 18px 4px",background:C.white,border:"1px solid "+C.border,boxShadow:"0 2px 6px "+C.shadow}}>
+                <span className="typing-dot" style={{background:C.orange}} />
+                <span className="typing-dot" style={{background:C.orange}} />
+                <span className="typing-dot" style={{background:C.orange}} />
+              </div>
+            </div>
+          )}
+          <div ref={chatEndRef} />
+        </div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:12}}>
+          {suggestedQs.map(sq => (
+            <button key={sq} onClick={() => sendMessage(sq)} className="pbtn" style={{padding:"8px 14px",borderRadius:20,fontSize:13,fontWeight:600,background:C.white,color:C.orange,border:"1.5px solid "+C.orangeSoft,cursor:"pointer",fontFamily:"inherit"}}>{sq}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{position:"sticky",bottom:0,padding:"8px 16px",paddingBottom:"max(8px, env(safe-area-inset-bottom))",background:C.white,borderTop:"1px solid "+C.border,boxShadow:"0 -2px 10px "+C.shadow}}>
+        <div style={{display:"flex",gap:8,maxWidth:420,margin:"0 auto"}}>
+          <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => { if (e.key === "Enter") sendMessage(); }} placeholder="質問を入力してください..." style={{flex:1,padding:"12px 16px",borderRadius:24,border:"1.5px solid "+C.border,fontSize:15,fontFamily:"inherit",outline:"none",background:C.cream}} />
+          <button onClick={() => sendMessage()} disabled={!input.trim()} className="pbtn" style={{width:46,height:46,borderRadius:"50%",border:"none",cursor:"pointer",background:input.trim()?C.orange:C.border,display:"flex",alignItems:"center",justifyContent:"center",transition:"background 0.2s"}}>
+            <I.Send size={20} color="#fff" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ━━━ APP ━━━ */
+function App() {
+  const [page, setPage] = useState("home");
+  const goHome = useCallback(() => setPage("home"), []);
+  switch (page) {
+    case "flow": return <FlowPage onBack={goHome} />;
+    case "docs": return <DocsPage onBack={goHome} />;
+    case "facilities": return <FacilitiesPage onBack={goHome} />;
+    case "diagnosis": return <DiagnosisPage onBack={goHome} />;
+    case "fees": return <FeesPage onBack={goHome} />;
+    case "contact": return <ContactPage onBack={goHome} />;
+    default: return <HomeScreen navigate={setPage} />;
+  }
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
